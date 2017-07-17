@@ -1,0 +1,33 @@
+*, *:before, *:after {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -box-sizing: border-box;
+  }
+
+[class^=boardRow]{
+  content: "";
+  display: table;
+  clear: both;
+  margin:auto;
+}
+
+.brandImage {
+	height: 35px;
+	padding-bottom: 5px;
+	margin-top: -5px;
+}
+.text{
+	color: white;
+}
+.board {
+	border : 1px solid orange;
+}
+.buttons{
+	text-align: center;
+}
+.wip{
+	border: 1px solid red;
+}
+.block{
+	float: left;
+}
