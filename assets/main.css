@@ -26,7 +26,7 @@
 	text-align: center;
 }
 .wip{
-	border: 1px solid red;
+	border: 1px solid grey;
 }
 .block{
 	float: left;
@@ -35,4 +35,12 @@
 }
 .bomb{
 	background-color: rgba(209, 0, 0, 0.73);
+}
+
+.covered{
+	background-color: rgba(119, 227, 254, 1.0);
+}
+
+.uncovered{
+	background-color: rgba(247, 254, 119, 1.0);
 }

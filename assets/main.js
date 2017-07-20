@@ -1,6 +1,13 @@
 
 $(document).ready(function(){
-
+  $('.board').on("click", 'div', function(event){
+    //collect the target event and pass it to the function
+    $selection = $(event.target)
+    event.stopPropagation();
+    //console.log($selection.parent().index())
+    board.uncoverableSquares($selection)
+    game.turn();
+  })
 });
 //board object
   var board = {
@@ -8,17 +15,24 @@ $(document).ready(function(){
   	numRows : 10,
 
     bombs : [],
+    //classes that are either covered or uncovered
+    covered: [],
     //initalizes the boardValues Array
     initVals : function(numRows){
-      array = [];      
+      array = [];  
+      arrayCovered = []    
       for (var j = 0; j < numRows; j++){
           newArray = [];
+          newArrayCovered = [];
           array.push(newArray);
+          arrayCovered.push(newArrayCovered);
         for (var i = 0; i < numRows; i++){
           newArray.push(0);
+          newArrayCovered.push("covered")
         }
       }
       this.values = array
+      this.covered = arrayCovered
     },
     values : [],
   //renders the board
@@ -31,7 +45,7 @@ $(document).ready(function(){
       for(var a = 0; a < numRows; a++){
         $(".board").append("<div class = 'boardRow" + a + " wip' ></div>")
         for (var i = 0; i < numRows; i++){
-          $(".boardRow" + a).append("<div class = 'block wip' >"+ a + i + "</div>")
+          $(".boardRow" + a).append("<div class = 'block "+board.covered[a][i] +" wip' >"+ board.values[a][i] + "</div>")
         }
      }
     },
@@ -42,7 +56,7 @@ $(document).ready(function(){
         var num2 = Math.floor(Math.random()*10);
         var bombs = [num1,num2]
         this.bombs.push(bombs)
-        this.values[num1][num2] = "Bomb"
+        this.values[num1][num2] = "B"
 
        $row = $('[class^="boardRow"]').eq(num1);
        $block = $row.children().eq(num2);
@@ -79,82 +93,7 @@ $(document).ready(function(){
       console.log(board.values);
 
     },
-/**
-    countLeft : function(x,y){
-      var a = x
-      var b = y-1
-      if (b >= 0){
-        var space = this.values[a][b]
-        if (b >= 0 && space !== "Bomb" ) {      
-          board.values[a][b] += 1;
-        }
-      }
-    },
-    countRight : function(x,y){
-      var a = x
-      var b = y + 1
 
-      if (b < 10) {
-        var space = this.values[a][b]
-        if (b < 10 && space !== "Bomb" ) {
-          board.values[a][b] += 1;
-        }
-      }
-    },
-    countDown : function(x,y){
-      var a = x + 1
-      var b = y 
-      if (a < 10){
-        var space = this.values[a][b]
-        if (a < 10 && space !== "Bomb" ) {
-          board.values[a][b] += 1;
-        }
-      }
-    },
-    countUp : function(x,y){
-      var a = x - 1
-      var b = y 
-      if (a >= 0){
-        var space = this.values[a][b]
-        if (a > 0 && space !== "Bomb" ) {
-          board.values[a][b] += 1;
-        }
-      }
-    },
-
-    countUpLeft : function(x,y){
-      var a = x - 1
-      var b = y -1
-       if (a >= 0 && b >= 0){
-        var space = this.values[a][b]
-        if (a >= 0 && space !== "Bomb" ) {
-          board.values[a][b] += 1;
-        }
-      }
-    },
-
-    countUpRight : function(x,y){
-      var a = x - 1
-      var b = y + 1
-      if (a >= 0 && b < 10){
-        var space = this.values[a][b]
-        if (a > 0 && space !== "Bomb" ) {
-          board.values[a][b] += 1;
-        }
-      }
-    },
-
-    countDownLeft : function(x,y){
-      var a = x + 1
-      var b = y - 1
-       if (a < 10 && b >= 0){
-        var space = this.values[a][b]
-        if (a >= 0 && space !== "Bomb" ) {
-          board.values[a][b] += 1;
-        }
-      }
-    },
-**/
     countDownRight : function(x,y){
       var a = x + 1
       var b = y + 1
@@ -183,14 +122,51 @@ $(document).ready(function(){
 
         if (a >= 0 && a < 10 && b >=0 && b < 10){
            var space = this.values[a][b]
-           if (space !== "Bomb"){
+           if (space !== "B"){
             board.values[a][b] += 1;
            }
         }
       }
-    //
+    },
+    turnRender: function(){
 
-    }
+    },
+    destroy: function(){
+      $('.board').html("");
+      console.log("is it working")
+    },
+
+    uncoverableSquares: function(clickedSquare){
+      var x = clickedSquare.parent().index()
+      var y = clickedSquare.index()
+      console.log(x, y)
+
+      var value = this.values[x][y]
+      console.log(value)
+
+      var a = x
+      var b = y
+        while( a < 10 && a >=0 && value === 0 && value !== "B" ){
+          board.covered[a][b] = "uncovered"
+          a++
+          if(a < 10){
+            value = board.values[a][b]
+          }
+        }
+        console.log(board.covered)
+      var a = x
+      var b = y
+        while( a < 10 && a >=0 && value === 0 && value !== "B" ){
+          board.covered[a][b] = "uncovered"
+          a--
+          if(a < 10){
+            value = board.values[a][b]
+          }
+        }
+        console.log(board.covered)
+    },
+
+    
     
 
   }
@@ -201,34 +177,15 @@ console.log(board.bombs)
 board.update();
 board.bombCheck();
 
+
+  var game = {
+    turn: function(){
+      board.destroy();
+      board.createRows(board.numRows);
+    }
+  }
 /**
 Board Object
-render
-bomb set
-
-  do 10 times
-    pick random number 1 through 10
-    pick another random number 1 through 10
-	make that value a bomb
-
-add numbers
-  find bomb
-    space - 1 
-      add 1
-    space + 1
-      add 1
-    space up one 
-      add 1
-    space down one
-      add 1
-    space up one -1
-      add 1
-    space up one + 1
-      add 1
-    space down one -1
-      add 1
-    space down one + 1
-      add 1
 
 onclick
   determine left or right click
@@ -244,3 +201,4 @@ reveal
     put the numbers up. 
 
 **/
+
