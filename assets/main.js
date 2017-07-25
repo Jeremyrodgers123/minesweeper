@@ -9,28 +9,29 @@ $(document).ready(function(){
     game.turn();
   })
 });
+
+  
+
+//[[{value: 0, 1, 2, 3, 4, isBomb: false or true, beenChecked: true or false, markedAsSafe: true or false }],[],[]]
 //board object
   var board = {
   //indicates how many rows and columns the game should have
   	numRows : 10,
-
     bombs : [],
     //classes that are either covered or uncovered
     covered: [],
     //initalizes the boardValues Array
     initVals : function(numRows){
       array = [];  
-      arrayCovered = []    
+          
       for (var j = 0; j < numRows; j++){
-          newArray = [];
-          newArrayCovered = [];
-          array.push(newArray);
-          arrayCovered.push(newArrayCovered);
+          newArray = [];        
+          array.push(newArray);         
         for (var i = 0; i < numRows; i++){
-          newArray.push(0);
-          newArrayCovered.push("covered")
+          newArray.push({value:0, isCovered: true, isBomb: false, safe: false});
         }
       }
+
       this.values = array
       this.covered = arrayCovered
     },
@@ -77,18 +78,6 @@ $(document).ready(function(){
         var x = bombSpots[pair][0];
         var y = bombSpots[pair][1];
         this.countMaster(x,y);
-     /**  
-        this.countLeft(x,y);
-        this.countRight(x,y);
-        this.countDown(x,y);
-        this.countUp(x,y);
-        this.countUpLeft(x,y);
-        this.countUpRight(x,y);
-        this.countDownLeft(x,y);
-        this.countDownRight(x,y);
-        //console.log(board.values);
-
-      **/
       }
       console.log(board.values);
 
@@ -136,35 +125,75 @@ $(document).ready(function(){
       console.log("is it working")
     },
 
+    checkSquare: function()
+
     uncoverableSquares: function(clickedSquare){
       var x = clickedSquare.parent().index()
       var y = clickedSquare.index()
-      console.log(x, y)
+      var currentSpace = [x,y]
+      //console.log(x, y)
+      //find all the 0's in the space
+      var findFarLeft = function(next, complete, x, y){
+        //var complete  =[[0,0]]
+        var neighbors = board.findNeighbors(x,y)
+         //removes negative spaces from array
+        for (var array in neighbors) {
+          a = neighbors[array][0] 
+          b = neighbors[array][1]
+         if (a >= 0 && a < 10 && b >=0 && b < 10){
+           next.push(neighbors[array])
+         }
+        }
+       
+        console.log(next)
 
-      var value = this.values[x][y]
-      console.log(value)
+        for (var index in next){
+          for(var box in complete){
+            //console.log("complete box")
+            //console.log(complete[box])
+            if (next[index][0] === complete[box][0] && next[index][1] === complete[box][1]){
+              //console.log("delete me")
+              //console.log('next index')
+              //console.log(next)
+              next.splice(index,1)
+              index--
+              complete.push([x,y])
+              //console.log(next)
+              //console.log("complete")
+              //console.log(complete)
 
-      var a = x
-      var b = y
-        while( a < 10 && a >=0 && value === 0 && value !== "B" ){
-          board.covered[a][b] = "uncovered"
-          a++
-          if(a < 10){
-            value = board.values[a][b]
+            }
           }
         }
-        console.log(board.covered)
-      var a = x
-      var b = y
-        while( a < 10 && a >=0 && value === 0 && value !== "B" ){
-          board.covered[a][b] = "uncovered"
-          a--
-          if(a < 10){
-            value = board.values[a][b]
-          }
-        }
-        console.log(board.covered)
+        
+        console.log("***STATS*****")
+        console.log("next")
+        console.log(next)
+        console.log("complete")
+        console.log(complete)
+         console.log("next up")
+        console.log(next[0])
+      }
+      var next =[]
+      var complete =[[0,0]]
+      findFarLeft(next, complete, x, y);
     },
+
+    findNeighbors : function(x,y){
+        var left         = [x     , y - 1]
+        var upLeft       = [x - 1 , y - 1]
+        var up           = [x - 1 , y    ]
+        var upRight      = [x - 1 , y + 1]
+        var right        = [x     , y + 1]
+        var downRight    = [x + 1 , y + 1]
+        var down         = [x + 1 , y    ]
+        var downLeft     = [x + 1 , y - 1]
+        var neighbors   = [left, upLeft, up, upRight, right, downRight,down, downLeft]
+      return neighbors
+    }
+
+
+
 
     
     
@@ -176,6 +205,7 @@ console.log(board.bombSet(board.numRows))
 console.log(board.bombs)
 board.update();
 board.bombCheck();
+
 
 
   var game = {
@@ -202,3 +232,63 @@ reveal
 
 **/
 
+
+
+/**
+      var value = this.values[x][y]
+      var valueY = value
+      console.log(value)
+      var b = y
+      while( b < 10 && b >=0 && valueY === 0 && valueY !== "B" ){
+  // check up down on the column
+        var a = x
+          while( a < 10 && a >=0 && value === 0 && value !== "B" ){
+            board.covered[a][b] = "uncovered"
+            a++
+            if(a < 10){
+              value = board.values[a][b]
+            }
+          }
+          console.log(board.covered)
+  // check up on the column
+        var a = x
+        value = this.values[x][y]
+          while( a < 10 && a >=0 && value === 0 && value !== "B" ){
+            board.covered[a][b] = "uncovered"
+            a--
+            if(a > 0 ){
+              value = board.values[a][b]
+            }
+          }
+          console.log(board.covered)
+        b++
+        //valueY = this.values[x][y]
+      }
+      var b = y
+      valueY = 0
+      while( b < 10 && b >=0 && valueY === 0 && valueY !== "B" ){
+  // check up down on the column
+        var a = x
+          while( a < 10 && a >=0 && value === 0 && value !== "B" ){
+            board.covered[a][b] = "uncovered"
+            a++
+            if(a < 10){
+              value = board.values[a][b]
+            }
+          }
+          console.log(board.covered)
+  // check up on the column
+        var a = x
+        value = this.values[x][y]
+          while( a < 10 && a >=0 && value === 0 && value !== "B" ){
+            board.covered[a][b] = "uncovered"
+            a--
+            if(a > 0 ){
+              value = board.values[a][b]
+            }
+          }
+          console.log(board.covered)
+        b--
+        a = x     //
+      }
+      **/
